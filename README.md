@@ -6,7 +6,7 @@ HARMAN task end-to-end deployment architecture
 
 ## Author
 
-- leralik
+- Alex Lernerman
 
 ## Task description
 
