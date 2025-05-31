@@ -6,7 +6,7 @@ HARMAN task end-to-end deployment architecture
 
 ## Author
 
-- alexler
+- leralik
 
 ## Task description
 
@@ -15,125 +15,124 @@ You are given a newly created AWS account. Deploy a webservice (in the form of m
 
 ## Architecture Components
 
-AWS Services:
+1. AWS Services:
 
-EKS: Managed Kubernetes service.
+   EKS: Managed Kubernetes service.
 
-ALB: Application Load Balancer for routing traffic.
+   ALB: Application Load Balancer for routing traffic.
 
-ECR: Elastic Container Registry for storing Docker images.
+   ECR: Elastic Container Registry for storing Docker images.
 
-Certificate Manager: For SSL/TLS certificates.
+   Certificate Manager: For SSL/TLS certificates.
 
-IAM: Identity and Access Management.
+   IAM: Identity and Access Management.
 
-Security Groups: Virtual firewalls for controlling inbound/outbound traffic.
+   Security Groups: Virtual firewalls for controlling inbound/outbound traffic.
 
-Route 53: DNS service.
+   Route 53: DNS service.
 
-NAT Gateway & Internet Gateway: For internet access.
+   NAT Gateway & Internet Gateway: For internet access.
 
-DevOps Tools:
+2. DevOps Tools:
 
-GitHub: Source code repository.
+   GitHub: Source code repository.
 
-Gitea: Self-hosted Git service.
+   Gitea: Self-hosted Git service.
 
-GitHub Runner: For CI/CD pipelines.
+   GitHub Runner: For CI/CD pipelines.
 
-Argo CD: GitOps continuous delivery tool.
+   Argo CD: GitOps continuous delivery tool.
 
 ## Set Up AWS Infrastructure (terraform)
 
 a. VPC Configuration:
 
-Create a VPC with public and private subnets across multiple Availability Zones.
+   Create a VPC with public and private subnets across multiple Availability Zones.
 
-Set up an Internet Gateway and attach it to the VPC.
+   Set up an Internet Gateway and attach it to the VPC.
 
-Configure a NAT Gateway in a public subnet to allow instances in private subnets to access the internet.
+   Configure a NAT Gateway in a public subnet to allow instances in private subnets to access the internet.
 
 b. Security Groups:
 
-Define security groups for:
+   Define security groups for:
 
-ALB: Allow HTTPS (443) traffic.
+   ALB: Allow HTTPS (443) traffic.
 
-EKS Nodes: Allow necessary ports (e.g., 443 for Kubernetes API).
+   EKS Nodes: Allow necessary ports (e.g., 443 for Kubernetes API).
 
 c. IAM Roles:
 
-Create IAM roles with least privilege for:
+   Create IAM roles with least privilege for:
 
-EKS Cluster and Nodes.
+   EKS Cluster and Nodes.
 
-Argo CD.
+   Argo CD.
 
-GitHub Runner.
+   GitHub Runner.
 
-External Secrets Operator.
+   External Secrets Operator.
 
 d. Route 53:
 
-Register a domain or use an existing one.
+   Register a domain .
 
-Create hosted zones and necessary DNS records for your services.
+   Create hosted zones and necessary DNS records for your services.
 
 e. Certificate Manager:
 
-Request SSL/TLS certificates for your domain via AWS Certificate Manager.
+   Request SSL/TLS certificates for your domain via AWS Certificate Manager.
 
-Validate domain ownership using DNS validation through Route 53.
+   Validate domain ownership using DNS validation through Route 53.
+   
 ## Provision EKS Cluster
-Use eksctl or Terraform to create an EKS cluster with the configured VPC and subnets.
 
-Ensure the cluster has the necessary IAM roles and node groups.
+   Use eksctl or Terraform to create an EKS cluster with the configured VPC and subnets.
+
+   Ensure the cluster has the necessary IAM roles and node groups.
+   
 ## Set Up ECR
-Create an ECR repository to store your Docker images.
+   Create an ECR repository to store your Docker images.
 
-Push your microservice Docker image to ECR( HitHub Actions)
-##  Infrucsture  cluster 
+   Push your microservice Docker image to ECR( HitHub Actions)
+   
+##  Infrucsture  cluster ( helm charts)
 
 1. Deploy Gitea
-Deploy Gitea in the EKS cluster:
-
-Use Helm charts .
-
-Expose Gitea via an internal service and ingress.
+   Deploy Gitea in the EKS cluster
+   Expose Gitea via an internal service and ingress.
 
 
 2. Configure GitHub Runner
-Deploy a self-hosted GitHub Runner in the EKS cluster
-Configure the runner to Update Kubernetes manifests in Gitea and images in ECR
+   
+   Deploy a self-hosted GitHub Runner in the EKS cluster
+   Configure the runner to Update Kubernetes manifests in Gitea and images in ECR
 
 
-3. Install Argo CD
-Deploy Argo CD in the EKS cluster:
-Expose Argo CD via an ingress 
-Configure Argo CD to monitor the Gitea repository for Kubernetes manifests. 
-Register the remote app cluster in Argo CD
-(This adds the kubeconfig for the EKS-Apps cluster into Argo CD's control plane on the EKS-Tools cluster)
-can use a dedicated argocd-manager service account with cluster-admin rights on the target cluster.
+4. Install Argo CD
+5. 
+   Deploy Argo CD in the EKS cluster
+   Expose Argo CD via an ingress 
+   Configure Argo CD to monitor the Gitea repository for Kubernetes manifests. 
+   Register the remote app cluster in Argo CD
 
-4. Set Up External Secrets Operator
-Deploy the External Secrets Operator in the EKS cluster.
-
-Configure it to sync secrets from AWS Secrets Manager to Kubernetes secrets.
+6. Set Up External Secrets Operator
+   Deploy the External Secrets Operator in the EKS cluster.
+   Configure it to sync secrets from AWS Secrets Manager to Kubernetes secrets.
 
 ## CI/CD Workflow
 
 Flow:
 
-GitHub → GitHub Runner → ECR & Gitea → Argo CD → EKS
+   GitHub → GitHub Runner → ECR & Gitea → Argo CD → EKS
 
 CI/CD Workflow Summary:
 
-Code Commit: Developer pushes code to GitHub.
+   Code Commit: Developer pushes code to GitHub.
 
-CI Pipeline: GitHub Actions (via self-hosted runner)
-1.  builds the Docker image and pushes it to ECR.
-
-2.  updates Kubernetes manifests in Gitea.
+   CI Pipeline: GitHub Actions (via self-hosted runner)
+      1.  builds the Docker image and pushes it to ECR.
+      2.  updates Kubernetes manifests in Gitea.
 
 CD Pipeline: Argo CD detects changes in Gitea and applies them to the EKS cluster.
 
@@ -141,29 +140,24 @@ CD Pipeline: Argo CD detects changes in Gitea and applies them to the EKS cluste
 ## Application Cluster
 
 Set Up External Secrets Operator
-Deploy the External Secrets Operator in the Application cluster.
-
-Configure it to sync secrets from AWS Secrets Manager to Kubernetes secrets.
+   Deploy the External Secrets Operator in the Application cluster.
+   Configure it to sync secrets from AWS Secrets Manager to Kubernetes secrets.
 
 Application Deployments
-Argo CD (in Infra-EKS) continuously watches Gitea repo.
-
-On change, Argo CD syncs the manifests to the EKS-Apps cluster.
+   Argo CD (in Infra-EKS) continuously watches Gitea repo.
+   On change, Argo CD syncs the manifests to the EKS-Apps cluster.
 
 ## Configure ALB Ingress
 
-1. Install the AWS Load Balancer Controller in the both EKS clusters.
+ Install the AWS Load Balancer Controller in the both EKS clusters.
+ Annotate your Ingress resources to use ALB
+ Ensure your services are exposed via the ALB with proper routing.
 
-Annotate your Ingress resources to use ALB
-
-
-Ensure your services are exposed via the ALB with proper routing.
-
-2. Set Up Route 53 DNS Records
+Set Up Route 53 DNS Records
   Create DNS records in Route 53 to point your domain/subdomain to the ALB's DNS name.
 
 
-## Additional Security  Configuration
+##  Security Configuration best practices
 
 
 Argo CD Remote Cluster:	Use argocd-manager service account with minimum permissions (RBAC)
@@ -182,37 +176,30 @@ Secrets Management: Store sensitive data in AWS Secrets Manager. Sync them to Ku
 
 SSL/TLS: Terminate SSL at the ALB using certificates from AWS Certificate Manager.
 
-Monitoring & Logging: Enable CloudWatch logging for EKS and ALB. Monitor logs and set up alerts for unusual activities.
+Monitoring & Logging (optional): Enable CloudWatch logging for EKS and ALB. Monitor logs and set up alerts for unusual activities.
+
 ## Architecture Diagram
 
 
 Public Subnets:
 
-ALB
-
-NAT Gateway
-
+   ALB
+   NAT Gateway
+   
 Private Subnets:
 
-EKS Nodes
-
-Gitea
-
-Argo CD
-
-GitHub Runner
-
+   EKS Nodes
+   Gitea
+   Argo CD
+   GitHub Runner
+   
 AWS Services:
 
-ECR
-
-Secrets Manager
-
-Certificate Manager
-
-Route 53
-
-CI/CD Flow:
+   ECR
+   Secrets Manager
+   Certificate Manager
+   Route 53
+   CI/CD Flow:
 
 GitHub → GitHub Runner → ECR & Gitea → Argo CD → EKS
 
