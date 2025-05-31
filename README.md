@@ -139,11 +139,11 @@ CD Pipeline: Argo CD detects changes in Gitea and applies them to the EKS cluste
 
 ## Application Cluster
 
-Set Up External Secrets Operator
+1. Set Up External Secrets Operator:
    Deploy the External Secrets Operator in the Application cluster.
    Configure it to sync secrets from AWS Secrets Manager to Kubernetes secrets.
 
-Application Deployments
+2. Application Deployments:
    Argo CD (in Infra-EKS) continuously watches Gitea repo.
    On change, Argo CD syncs the manifests to the EKS-Apps cluster.
 
