@@ -55,7 +55,7 @@ a. VPC Configuration:
 
 b. Security Groups:
 
-   Define security groups for:
+   Define security groups for
 
    ALB: Allow HTTPS (443) traffic.
 
@@ -77,24 +77,24 @@ d. Route 53:
 
    Register a domain .
 
-   Create hosted zones and necessary DNS records for your services.
+   Create hosted zones and necessary DNS records for services.
 
 e. Certificate Manager:
 
-   Request SSL/TLS certificates for your domain via AWS Certificate Manager.
+   Request SSL/TLS certificates for  domain via AWS Certificate Manager.
 
    Validate domain ownership using DNS validation through Route 53.
    
-## Provision EKS Cluster
+## Provision EKS Cluster ( eksctl or terafform)
 
-   Use eksctl or Terraform to create an EKS cluster with the configured VPC and subnets.
+   Create an EKS cluster with the configured VPC and subnets.
 
    Ensure the cluster has the necessary IAM roles and node groups.
    
 ## Set Up ECR
-   Create an ECR repository to store your Docker images.
+   Create an ECR repository to store  Docker images.
 
-   Push your microservice Docker image to ECR( HitHub Actions)
+   Push microservice Docker image to ECR( HitHub Actions)
    
 ##  Infrucsture  cluster ( helm charts)
 
@@ -110,7 +110,7 @@ e. Certificate Manager:
 
 
 4. Install Argo CD
-5. 
+   
    Deploy Argo CD in the EKS cluster
    Expose Argo CD via an ingress 
    Configure Argo CD to monitor the Gitea repository for Kubernetes manifests. 
@@ -150,11 +150,11 @@ Application Deployments
 ## Configure ALB Ingress
 
  Install the AWS Load Balancer Controller in the both EKS clusters.
- Annotate your Ingress resources to use ALB
- Ensure your services are exposed via the ALB with proper routing.
+ Annotate  Ingress resources to use ALB
+ Ensure  services are exposed via the ALB with proper routing.
 
 Set Up Route 53 DNS Records
-  Create DNS records in Route 53 to point your domain/subdomain to the ALB's DNS name.
+   Create DNS records in Route 53 to point domain/subdomain to the ALB's DNS name.
 
 
 ##  Security Configuration best practices
