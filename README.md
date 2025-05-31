@@ -45,7 +45,7 @@ You are given a newly created AWS account. Deploy a webservice (in the form of m
 
 ## Set Up AWS Infrastructure (terraform)
 
-a. VPC Configuration:
+1. VPC Configuration:
 
    Create a VPC with public and private subnets across multiple Availability Zones.
 
@@ -53,7 +53,7 @@ a. VPC Configuration:
 
    Configure a NAT Gateway in a public subnet to allow instances in private subnets to access the internet.
 
-b. Security Groups:
+2. Security Groups:
 
    Define security groups for
 
@@ -61,7 +61,7 @@ b. Security Groups:
 
    EKS Nodes: Allow necessary ports (e.g., 443 for Kubernetes API).
 
-c. IAM Roles:
+3. IAM Roles:
 
    Create IAM roles with least privilege for:
 
@@ -73,13 +73,13 @@ c. IAM Roles:
 
    External Secrets Operator.
 
-d. Route 53:
+4. Route 53:
 
    Register a domain .
 
    Create hosted zones and necessary DNS records for services.
 
-e. Certificate Manager:
+5. Certificate Manager:
 
    Request SSL/TLS certificates for  domain via AWS Certificate Manager.
 
