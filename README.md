@@ -203,5 +203,5 @@ AWS Services:
 
 GitHub → GitHub Runner → ECR & Gitea → Argo CD → EKS
 
-![alt text](2025-05-31_12-07-00-1-2.gif)
+![alt text](2025-05-31_12-07-00-1-1.gif)
 
