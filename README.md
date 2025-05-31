@@ -85,7 +85,7 @@ You are given a newly created AWS account. Deploy a webservice (in the form of m
 
    Validate domain ownership using DNS validation through Route 53.
    
-## Provision EKS Cluster ( eksctl or terafform)
+## Provision Infrucsture-EKS Cluster ( eksctl or terafform)
 
    Create an EKS cluster with the configured VPC and subnets.
 
@@ -117,6 +117,7 @@ You are given a newly created AWS account. Deploy a webservice (in the form of m
    Register the remote app cluster in Argo CD
 
 6. Set Up External Secrets Operator
+   
    Deploy the External Secrets Operator in the EKS cluster.
    Configure it to sync secrets from AWS Secrets Manager to Kubernetes secrets.
 
@@ -136,14 +137,20 @@ CI/CD Workflow Summary:
 
 CD Pipeline: Argo CD detects changes in Gitea and applies them to the EKS cluster.
 
+## Provision EKS-Application Cluster ( eksctl or terafform)
 
+   Create an EKS cluster with the configured VPC and subnets.
+
+   Ensure the cluster has the necessary IAM roles and node groups.
+   
 ## Application Cluster
 
 1. Set Up External Secrets Operator:
+   
    Deploy the External Secrets Operator in the Application cluster.
    Configure it to sync secrets from AWS Secrets Manager to Kubernetes secrets.
 
-2. Application Deployments:
+3. Application Deployments:
    Argo CD (in Infra-EKS) continuously watches Gitea repo.
    On change, Argo CD syncs the manifests to the EKS-Apps cluster.
 
