@@ -1,4 +1,4 @@
-# This is a high-level modular Terraform script for the requested infrastructure
+# Terraform script for the requested infrastructure
 
 # Required providers
 provider "aws" {
