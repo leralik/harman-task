@@ -1,1 +1,19 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "eks:DescribeCluster",
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "secretsmanager:GetSecretValue",
+        "ssm:GetParameter"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
 
