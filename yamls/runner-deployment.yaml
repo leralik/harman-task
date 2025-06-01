@@ -1,0 +1,19 @@
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  name: github-runner
+  namespace: actions-runner
+spec:
+  replicas: 1
+  template:
+    spec:
+      repository: my-org/my-repo
+      image: summerwind/actions-runner:latest
+      serviceAccountName: github-runner
+      env:
+        - name: RUNNER_NAME
+          value: webapp-runner
+        - name: RUNNER_WORKDIR
+          value: /runner/_work
+        - name: RUNNER_GROUP
+          value: default
