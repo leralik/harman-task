@@ -1,32 +1,73 @@
+# 1. SecretStore: connects External Secrets to AWS Secrets Manager
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+  name: aws-secrets
+  namespace: argocd
+spec:
+  provider:
+    aws:
+      service: SecretsManager
+      region: us-east-1
+      auth:
+        jwt:
+          serviceAccountRef:
+            name: external-secrets-sa
+
+---
+
+# 2. ExternalSecret: pulls Gitea token from AWS and creates Argo CD repo secret
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: gitea-repo-creds
+  namespace: argocd
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: aws-secrets
+    kind: SecretStore
+  target:
+    name: gitea-repo-creds
+    creationPolicy: Owner
+    template:
+      metadata:
+        labels:
+          argocd.argoproj.io/secret-type: repository
+      type: Opaque
+      data:
+        url: http://gitea.gitea.svc.cluster.local:3000/my-org/my-repo.git 
+        type: git
+        token: "{{ .token }}"
+  data:
+    - secretKey: token
+      remoteRef:
+        key: gitea-token-secret
+        property: token
+
+---
+
+# 3. Argo CD Application: deploy Helm chart from Gitea repo
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: gitea
+  name: my-app
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://dl.gitea.io/charts/
-    chart: gitea
-    targetRevision: 10.1.2
+    repoURL: http://gitea.gitea.svc.cluster.local:3000/my-org/my-repo.git
+    targetRevision: main
+    path: helm/my-service                  
     helm:
-      values: |
-        service:
-          http:
-            type: ClusterIP
-          ssh:
-            type: ClusterIP
-        gitea:
-          admin:
-            username: gitea
-            password: gitea123
-            email: gitea@example.com
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: gitea
+    namespace: my-app
   syncPolicy:
     automated:
-      selfHeal: true
       prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
