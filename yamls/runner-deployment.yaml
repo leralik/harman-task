@@ -52,7 +52,7 @@ spec:
   replicas: 2
   template:
     spec:
-      repository: your-org/your-repo       # ✅ Replace with your target repo
+      repository: my-org/my-repo
       image: summerwind/actions-runner:latest
       group: default
       labels:
