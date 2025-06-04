@@ -148,6 +148,12 @@ resource "aws_iam_policy" "github_runner" {
   policy      = file("github_runner_policy.json")
 }
 
+resource "aws_iam_policy" "external_secrets" {
+  name        = "ExternalSecretsPolicy"
+  description = "IAM policy for External Secrets Operator"
+  policy      = file("external_secrets_policy.json")
+}
+
 module "alb_ingress_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version = "5.30.0"
@@ -206,6 +212,31 @@ module "github_runner_irsa" {
   oidc_fully_qualified_subjects = ["system:serviceaccount:github:runner"]
 
   policy_arns = [aws_iam_policy.github_runner.arn]
+}
+module "external_secrets_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+  version = "5.30.0"
+
+  name = "external-secrets"
+
+  create_role = true
+  role_name   = "external-secrets"
+
+  provider_url = module.eks_tools.oidc_provider
+  oidc_fully_qualified_subjects = ["system:serviceaccount:argocd:external-secrets-sa"]
+
+  # Attach a policy that allows access to AWS Secrets Manager
+  policy_arns = [aws_iam_policy.external_secrets.arn]
+}
+
+resource "kubernetes_service_account" "external_secrets" {
+  metadata {
+    name      = "external-secrets-sa"
+    namespace = "argocd"
+    annotations = {
+      "eks.amazonaws.com/role-arn" = module.external_secrets_irsa.iam_role_arn
+    }
+  }
 }
 
 # Helm provider for Helm chart deployments
