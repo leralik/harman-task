@@ -275,7 +275,7 @@ resource "helm_release" "argocd" {
   chart      = "argo-cd"
   version    = "5.51.6"
   create_namespace = true
-  service_account = "argocd-server"
+  #service_account = "argocd-server"
   values = [
     <<EOF
 server:
@@ -295,7 +295,7 @@ resource "helm_release" "gitea" {
   chart      = "gitea"
   version    = "10.2.0"
   create_namespace = true
-  service_account = "gitea"
+  #service_account = "gitea"
   values = [
     <<EOF
 serviceAccount:
@@ -317,7 +317,7 @@ resource "helm_release" "github_runner_controller" {
   chart      = "actions-runner-controller"
   version    = "0.24.1"
   create_namespace = true
-  service_account = "runner"
+  #service_account = "runner"
   values = [
     <<EOF
 serviceAccount:
@@ -336,7 +336,7 @@ resource "helm_release" "alb_ingress" {
   chart      = "aws-load-balancer-controller"
   version    = "1.7.1"
   create_namespace = false
-  service_account = "alb-ingress-controller"
+  #service_account = "alb-ingress-controller"
   values = [
     <<EOF
 clusterName: webapp-cluster
