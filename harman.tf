@@ -11,11 +11,11 @@ module "vpc" {
   version = "5.1.0"
 
   name = "webapp-vpc"
-  cidr = "10.0.0.0/16"
+  cidr = var.vpc_cidr
 
   azs             = ["${var.aws_region}a", "${var.aws_region}b"]
-  public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
-  private_subnets = ["10.0.101.0/24", "10.0.102.0/24"]
+  public_subnets  = var.public_subnets
+  private_subnets = var.private_subnets
 
   enable_nat_gateway     = true
   single_nat_gateway     = true
@@ -96,14 +96,14 @@ resource "aws_secretsmanager_secret" "app_secret" {
 module "eks_tools" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "20.4.0"
-  cluster_name    = "tools-cluster"
-  cluster_version = "1.29"
+  cluster_name    = var.eks_tools_cluster_name
+  cluster_version = var.eks_version
   subnet_ids      = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
   eks_managed_node_groups = {
     default = {
-      desired_capacity = 2
-      instance_types   = ["t3.medium"]
+      desired_capacity = var.tools_node_desired_capacity
+      instance_types   = [var.tools_node_instance_type]
     }
   }
 }
@@ -111,14 +111,14 @@ module "eks_tools" {
 module "eks_webapp" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "20.4.0"
-  cluster_name    = "webapp-cluster"
-  cluster_version = "1.29"
+  cluster_name    = var.eks_webapp_cluster_name
+  cluster_version = var.eks_version
   subnet_ids      = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
   eks_managed_node_groups = {
     default = {
-      desired_capacity = 3
-      instance_types   = ["t3.large"]
+      desired_capacity = var.webapp_node_desired_capacity
+      instance_types   = [var.webapp_node_instance_type]
     }
   }
 }
@@ -213,6 +213,7 @@ module "github_runner_irsa" {
 
   policy_arns = [aws_iam_policy.github_runner.arn]
 }
+
 module "external_secrets_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version = "5.30.0"
@@ -225,7 +226,6 @@ module "external_secrets_irsa" {
   provider_url = module.eks_tools.oidc_provider
   oidc_fully_qualified_subjects = ["system:serviceaccount:argocd:external-secrets-sa"]
 
-  # Attach a policy that allows access to AWS Secrets Manager
   policy_arns = [aws_iam_policy.external_secrets.arn]
 }
 
@@ -273,9 +273,8 @@ resource "helm_release" "argocd" {
   namespace  = "argocd"
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
-  version    = "5.51.6"
+  version    = var.argocd_chart_version
   create_namespace = true
-  #service_account = "argocd-server"
   values = [
     <<EOF
 server:
@@ -293,9 +292,8 @@ resource "helm_release" "gitea" {
   namespace  = "gitea"
   repository = "https://dl.gitea.io/charts/"
   chart      = "gitea"
-  version    = "10.2.0"
+  version    = var.gitea_chart_version
   create_namespace = true
-  #service_account = "gitea"
   values = [
     <<EOF
 serviceAccount:
@@ -315,9 +313,8 @@ resource "helm_release" "github_runner_controller" {
   namespace  = "github"
   repository = "https://actions-runner-controller.github.io/actions-runner-controller"
   chart      = "actions-runner-controller"
-  version    = "0.24.1"
+  version    = var.github_runner_chart_version
   create_namespace = true
-  #service_account = "runner"
   values = [
     <<EOF
 serviceAccount:
@@ -334,12 +331,11 @@ resource "helm_release" "alb_ingress" {
   namespace  = "kube-system"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
-  version    = "1.7.1"
+  version    = var.alb_ingress_chart_version
   create_namespace = false
-  #service_account = "alb-ingress-controller"
   values = [
     <<EOF
-clusterName: webapp-cluster
+clusterName: ${var.eks_webapp_cluster_name}
 serviceAccount:
   create: false
   name: alb-ingress-controller
